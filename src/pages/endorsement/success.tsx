@@ -9,7 +9,7 @@ import EndorsementHeader from "@/components/endorsement/header";
 import { Button } from "@/components/ui/button";
 
 export default function Success() {
-    const { draft, clearDraft } = useEndorsement();
+    const { draft } = useEndorsement();
 
     const { candidate, reasons } = draft;
 

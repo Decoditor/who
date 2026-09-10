@@ -25,7 +25,6 @@ export function StateSelector({
         <Select
             value={value}
             onValueChange={(event) => onChange(event ?? "")}
-
         >
             <SelectTrigger>Select State</SelectTrigger>
             <SelectContent>
