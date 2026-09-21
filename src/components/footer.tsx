@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 const footerLinks = [
     { label: "How it works", href: "#how-it-works" },
@@ -7,7 +8,13 @@ const footerLinks = [
     { label: "Log in", href: "/login" },
 ];
 
-export default function Footer() {
+interface FooterProps {
+    onHaveYourSay: () => void;
+}
+
+export default function Footer({
+    onHaveYourSay,
+}: FooterProps) {
     return (
         <footer className="bg-primary px-5 py-6 text-primary-foreground sm:px-8 lg:py-20">
             <div className="mx-auto max-w-360">
@@ -39,8 +46,9 @@ export default function Footer() {
                             A place for Nigerians to publicly share who they support and why.
                         </p>
 
-                        <Link
-                            to="/signup"
+                        <Button
+                            type="button"
+                            onClick={onHaveYourSay}
                             className="group mt-8 inline-flex items-center gap-4 rounded-full bg-lime py-2 pl-5 pr-2 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1"
                         >
                             Make your choice
@@ -48,7 +56,7 @@ export default function Footer() {
                             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:rotate-45">
                                 <ArrowUpRight className="h-4 w-4" />
                             </span>
-                        </Link>
+                        </Button>
                     </div>
 
                     {/* Navigation */}

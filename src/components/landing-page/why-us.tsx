@@ -1,5 +1,5 @@
 import { ArrowUpRight, Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Button } from "../ui/button";
 
 const reasons = [
     {
@@ -22,7 +22,13 @@ const reasons = [
     },
 ];
 
-export default function WhyUs() {
+interface WhyUsProps {
+    onHaveYourSay: () => void;
+}
+
+export default function WhyUs({
+    onHaveYourSay,
+}: WhyUsProps) {
     return (
         <section
             id="why-who"
@@ -139,16 +145,17 @@ export default function WhyUs() {
                         </p>
                     </div>
 
-                    <Link
-                        to="/signup"
-                        className="group inline-flex w-fit items-center gap-4 rounded-full bg-primary py-2 pl-5 pr-2 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-1"
+                    <Button
+                        type="button"
+                        onClick={onHaveYourSay}
+                        className="group inline-flex w-fit items-center gap-4 rounded-full py-2 pl-5 pr-2 text-sm font-bold transition-transform hover:-translate-y-1"
                     >
-                        Make your choice
+                        Have your say
 
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-lime text-accent-foreground transition-transform group-hover:rotate-45">
                             <ArrowUpRight className="h-4 w-4" />
                         </span>
-                    </Link>
+                    </Button>
                 </div>
             </div>
         </section>

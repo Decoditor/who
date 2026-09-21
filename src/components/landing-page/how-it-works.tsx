@@ -1,7 +1,14 @@
 import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Button } from '../ui/button';
 
-export default function HowItWorks() {
+interface HowItWorksProps {
+    onHaveYourSay: () => void;
+}
+
+export default function HowItWorks({
+    onHaveYourSay,
+}: HowItWorksProps) {
     return (
         <section
             id="how-it-works"
@@ -152,8 +159,9 @@ export default function HowItWorks() {
                         say it.
                     </p>
 
-                    <Link
-                        to="/signup"
+                    <Button
+                        type="button"
+                        onClick={onHaveYourSay}
                         className="group inline-flex w-fit items-center gap-4 rounded-full bg-lime py-2 pl-5 pr-2 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1"
                     >
                         Make your choice
@@ -161,7 +169,7 @@ export default function HowItWorks() {
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:rotate-45">
                             <ArrowUpRight className="h-4 w-4" />
                         </span>
-                    </Link>
+                    </Button>
                 </div>
             </div>
         </section>

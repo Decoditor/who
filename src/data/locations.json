@@ -1,0 +1,32 @@
+{
+    "data": [
+        {
+            "id": "NG001",
+            "name": {
+                "local": "Abia",
+                "en": "Abia",
+                "slug": "abia-ng001"
+            },
+            "lga": [
+                {
+                    "id": "NG001001",
+                    "name": {
+                        "local": "Aba North",
+                        "en": "Aba North",
+                        "slug": "aba-north-ng001001"
+                    },
+                    "ward": [
+                        {
+                            "id": "NG001001_eziama",
+                            "name": {
+                                "local": "Eziama",
+                                "en": "Eziama",
+                                "slug": "eziama"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

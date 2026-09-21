@@ -43,7 +43,7 @@ export default function Login() {
         console.log("Login data:", values);
 
         // Temporary until the backend authentication endpoint is connected.
-        navigate("/");
+        navigate("/dashboard");
     };
 
     return (

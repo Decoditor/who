@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { ArrowUpRight, Check, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
-
 import Header from "@/components/header";
 import Disclaimer from "@/components/disclaimer";
 import HowItWorks from "@/components/landing-page/how-it-works";
 import WhyUs from "@/components/landing-page/why-us";
 import Footer from "@/components/footer";
+import PickEntryDialog from "@/components/pick/entry-dialog";
+
 
 const positions = [
     {
@@ -25,381 +26,325 @@ const positions = [
     },
 ];
 
-export default function Onboarding() {
-    return (
-        <main className="min-h-screen overflow-hidden bg-[#F4F0E8] text-[#123B35]">
-            <Header />
+const featuredCandidates = [
+    {
+        name: "Bola Ahmed Tinubu",
+        image:
+            "/candidates/tinubu.png",
+    },
+    {
+        name: "Atiku Abubakar",
+        image:
+            "/candidates/atiku.png",
+    },
+    {
+        name: "Peter Obi",
+        image:
+            "/candidates/obi.png",
+    },
+];
 
-            {/* Background grid */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-[0.055]"
+function CandidatePortraits({ mobile = false }: { mobile?: boolean }) {
+    if (mobile) {
+        return (
+            <div className="mx-auto w-full max-w-sm">
+                <div className="grid grid-cols-3 items-end gap-2">
+                    {/* Atiku */}
+                    <div className="h-56 overflow-hidden rounded-t-[5rem] border-2 shadow-lg">
+                        <img
+                            src={featuredCandidates[1].image}
+                            alt={featuredCandidates[1].name}
+                            className="h-full w-full object-cover border object-top"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
+
+                    {/* Tinubu */}
+                    <div className="h-72 border-2 border-primary overflow-hidden rounded-t-[6rem] bg-muted shadow-xl">
+                        <img
+                            src={featuredCandidates[0].image}
+                            alt={featuredCandidates[0].name}
+                            className="h-full w-full object-cover object-top"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
+
+                    {/* Peter Obi */}
+                    <div className="h-56 overflow-hidden rounded-t-[5rem] bg-muted shadow-lg">
+                        <img
+                            src={featuredCandidates[2].image}
+                            alt={featuredCandidates[2].name}
+                            className="h-full w-full object-cover object-top"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </div>
+                </div>
+
+                <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-coral" />
+                    Presidential candidates
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative mx-auto w-full max-w-3xl">
+            <div className="grid grid-cols-3 items-end gap-3">
+                {/* Atiku */}
+                <div className="h-96 border border-primary overflow-hidden rounded-t-[8rem] bg-muted shadow-xl transition-transform duration-300 hover:-translate-y-2">
+                    <img
+                        src={featuredCandidates[1].image}
+                        alt={featuredCandidates[1].name}
+                        className="h-full w-full object-cover object-top"
+                        loading="eager"
+                        decoding="async"
+                    />
+                </div>
+
+                {/* Tinubu */}
+                <div className="h-120 border overflow-hidden rounded-t-[10rem] border-primary shadow-2xl transition-transform duration-300 hover:-translate-y-2">
+                    <img
+                        src={featuredCandidates[0].image}
+                        alt={featuredCandidates[0].name}
+                        className="h-full w-full object-cover object-top"
+                        loading="eager"
+                        decoding="async"
+                    />
+                </div>
+
+                {/* Peter Obi */}
+                <div className="h-96 overflow-hidden border border-primary rounded-t-[8rem] bg-muted shadow-xl transition-transform duration-300 hover:-translate-y-2">
+                    <img
+                        src={featuredCandidates[2].image}
+                        alt={featuredCandidates[2].name}
+                        className="h-full w-full object-cover object-top"
+                        loading="eager"
+                        decoding="async"
+                    />
+                </div>
+            </div>
+
+            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-xs font-semibold shadow-md">
+                <span className="h-2 w-2 rounded-full bg-coral" />
+                Presidential candidates
+            </div>
+        </div>
+    );
+}
+
+function HeroCopy({
+    mobile = false,
+    onHaveYourSay,
+}: {
+    mobile?: boolean;
+    onHaveYourSay: () => void;
+}) {
+    if (mobile) {
+        return (
+            <div className="flex flex-col items-center text-center">
+                <div className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="h-px w-6 bg-border" />
+                    A Nigerian civic platform
+                    <span className="h-px w-6 bg-border" />
+                </div>
+
+                <h1 className="font-heading text-4xl font-black leading-[0.82] tracking-tighter sm:text-7xl">
+                    WHO
+                    <span className="block text-coral">ARE YOU</span>
+                    <span className="block">BACKING?</span>
+                </h1>
+
+                <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground">
+                    Say who you're backing, explain why, and share your choice.
+                </p>
+
+                <button
+                    type="button"
+                    onClick={onHaveYourSay}
+                    className="group mt-7 inline-flex items-center gap-3 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                >
+                    Make your choice
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground text-primary">
+                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative z-30 flex h-full flex-col justify-center">
+            <div className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="h-px w-8 bg-border" />
+                A Nigerian civic platform
+            </div>
+
+            <h1 className="font-heading text-[clamp(3rem,7vw,6rem)] font-black leading-[0.78] tracking-tighter">
+                WHO
+                <span className="block text-coral">ARE YOU</span>
+            </h1>
+
+            <div className="mt-8 flex items-center gap-4">
+                <button
+                    type="button"
+                    onClick={onHaveYourSay}
+                    className="group inline-flex items-center gap-3 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                >
+                    Make your choice
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground text-primary">
+                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                </button>
+
+                <span className="text-xs font-medium text-muted-foreground">
+                    Say it. Share it.
+                </span>
+            </div>
+        </div>
+    );
+}
+
+function PositionLabels() {
+    return (
+        <>
+            {positions.map((position) => (
+                <div
+                    key={position.number}
+                    className={`absolute z - 40 hidden items - center gap - 2 rounded - full border border - border bg - background px - 3 py - 2 text - xs font - semibold shadow - sm lg:flex ${position.className}`}
+                >
+                    <span className="text-muted-foreground">
+                        {position.number}
+                    </span>
+
+                    <span>{position.label}</span>
+
+                    <ChevronRight className="h-3.5 w-3.5 text-coral" />
+                </div>
+            ))}
+        </>
+    );
+}
+
+export default function Onboarding() {
+    const [pickDialogOpen, setPickDialogOpen] = useState(false);
+
+    const openPickDialog = () => {
+        setPickDialogOpen(true);
+    };
+
+    return (
+        <main className="min-h-screen overflow-hidden bg-background text-foreground">
+            <Header onHaveYourSay={openPickDialog} />
+
+            <section
+                className="relative border-b border-border"
                 style={{
                     backgroundImage:
-                        "linear-gradient(#123B35 1px, transparent 1px), linear-gradient(90deg, #123B35 1px, transparent 1px)",
-                    backgroundSize: "70px 70px",
+                        "linear-gradient(to right, color-mix(in oklch, var(--green) 7%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklch, var(--green) 7%, transparent) 1px, transparent 1px)",
+                    backgroundSize: "48px 48px",
                 }}
-            />
+            >
+                <PositionLabels />
 
-            <section className="relative px-4 pb-8 pt-28 sm:px-6 lg:min-h-screen lg:px-8">
-                <div className="mx-auto max-w-360">
-                    {/* Top labels */}
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#123B35]/50">
-                            <span className="h-2 w-2 rounded-full bg-[#E5FF55]" />
-                            A Nigerian civic platform
+                {/* Desktop hero */}
+                <div className="relative mx-auto hidden min-h-[calc(100svh-5rem)] max-w-400 px-6 py-12 lg:block">
+                    <div className="grid min-h-[calc(100svh-11rem)] grid-cols-[0.85fr_1.4fr_0.75fr] items-center gap-8 md:gap-0">
+                        {/* Left copy */}
+                        <HeroCopy onHaveYourSay={openPickDialog} />
+
+                        {/* Main candidate composition */}
+                        <div className="relative flex items-end justify-center">
+                            <CandidatePortraits />
+
+                            <div className="absolute -top-5 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                                Your choice. Your voice.
+                            </div>
                         </div>
 
-                        <div className="hidden text-right text-[10px] font-semibold uppercase tracking-[0.2em] text-[#123B35]/40 sm:block">
-                            Say it.
-                            <br />
-                            Share it.
+                        {/* Right copy */}
+                        <div className="relative z-30 flex flex-col items-end justify-center text-right">
+                            <div className="mb-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                Public endorsement
+                            </div>
+
+                            <h2 className="font-heading text-[clamp(4rem,7vw,7rem)] font-black leading-[0.78] tracking-tighter">
+                                BACKING?
+                            </h2>
+
+                            <div className="mt-8 max-w-48 space-y-3">
+                                <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+                                    <Check className="h-4 w-4 text-coral" />
+                                    Choose a candidate
+                                </div>
+
+                                <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+                                    <Check className="h-4 w-4 text-coral" />
+                                    Give your reason
+                                </div>
+
+                                <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+                                    <Check className="h-4 w-4 text-coral" />
+                                    Share your choice
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* =========================
-              DESKTOP COMPOSITION
-          ========================== */}
-                    <div className="relative mt-8 hidden min-h-[calc(100vh-12rem)] items-center lg:flex">
-                        {/* Background typography */}
-                        <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 select-none text-center">
-                            <div className="text-[clamp(8rem,14vw,13rem)] font-black leading-[0.72] tracking-[-0.09em] text-[#123B35]/[0.075]">
-                                WHO
-                            </div>
+                    <div className="flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
+                        <span>
+                            Independent. Public. Not an official voting platform.
+                        </span>
 
-                            <div className="text-[clamp(8rem,14vw,13rem)] font-black leading-[0.72] tracking-[-0.09em] text-[#123B35]/[0.075]">
-                                NG
-                            </div>
-                        </div>
+                        <span className="font-medium">
+                            who.ng
+                        </span>
+                    </div>
+                </div>
 
-                        {/* Floating position labels */}
+                {/* Mobile hero */}
+                <div className="relative px-5 pb-10 pt-10 lg:hidden">
+                    <HeroCopy mobile onHaveYourSay={openPickDialog} />
+
+                    <div className="mt-10">
+                        <CandidatePortraits mobile />
+                    </div>
+
+                    <div className="mt-8 grid grid-cols-3 gap-3 border-y border-border py-5 text-center">
                         {positions.map((position) => (
-                            <div
-                                key={position.number}
-                                className={`absolute z-20 flex items-center gap-3 rounded-full border border-[#123B35]/10 bg-[#F4F0E8]/85 px-3 py-2 backdrop-blur-md ${position.className}`}
-                            >
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#123B35] text-[9px] font-bold text-white">
+                            <div key={position.number}>
+                                <span className="block text-[10px] font-semibold text-muted-foreground">
                                     {position.number}
                                 </span>
 
-                                <span className="pr-1 text-[10px] font-bold uppercase tracking-[0.15em]">
+                                <span className="mt-1 block text-xs font-semibold">
                                     {position.label}
                                 </span>
                             </div>
                         ))}
-
-                        {/* Left headline */}
-                        <div className="absolute left-0 top-[8%] z-10 w-[31%]">
-                            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#123B35]/45">
-                                The choice is yours
-                            </p>
-
-                            <h1 className="text-[clamp(4rem,5.7vw,6.5rem)] font-black leading-[0.82] tracking-[-0.075em]">
-                                WHO
-                                <br />
-                                ARE YOU
-                            </h1>
-                        </div>
-
-                        {/* Right headline */}
-                        <div className="absolute right-0 top-[17%] z-10 w-[31%] text-right">
-                            <h1 className="text-[clamp(4rem,5.7vw,6.5rem)] font-black leading-[0.82] tracking-[-0.075em]">
-                                BACKING
-                                <span className="text-[#D96D45]">?</span>
-                            </h1>
-
-                            <p className="ml-auto mt-7 max-w-[280px] text-sm leading-6 text-[#123B35]/60">
-                                Tell Nigeria who you support and why. Your endorsement,
-                                your words, your choice.
-                            </p>
-                        </div>
-
-                        {/* Central visual */}
-                        <div className="relative z-10 mx-auto w-[44%] max-w-[580px]">
-                            <div className="relative aspect-[0.9] overflow-hidden bg-[#123B35] shadow-[0_35px_80px_rgba(18,59,53,0.18)]">
-                                {/* Top label */}
-                                <div className="absolute left-0 right-0 top-0 flex items-center justify-between px-7 py-5">
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">
-                                        WHO.NG / 01
-                                    </span>
-
-                                    <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/55">
-                                        Make it count
-                                        <span className="h-1.5 w-1.5 rounded-full bg-[#E5FF55]" />
-                                    </span>
-                                </div>
-
-                                {/* Main card */}
-                                <div className="absolute left-[9%] right-[9%] top-[17%] h-[62%] bg-[#E8E3D8] p-7 shadow-2xl">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#123B35]/45">
-                                                My endorsement
-                                            </p>
-
-                                            <p className="mt-2 text-[10px] text-[#123B35]/45">
-                                                Who I&apos;m backing
-                                            </p>
-                                        </div>
-
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#123B35] text-xs font-black text-white">
-                                            W
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-12 flex items-center gap-5">
-                                        <div className="relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#D96D45]">
-                                            <div className="absolute -bottom-7 h-20 w-20 rounded-full bg-[#123B35]" />
-                                            <div className="absolute top-5 h-12 w-12 rounded-full bg-[#F4F0E8]" />
-                                        </div>
-
-                                        <div>
-                                            <div className="h-3 w-36 rounded-full bg-[#123B35]" />
-                                            <div className="mt-3 h-2 w-20 rounded-full bg-[#123B35]/20" />
-
-                                            <div className="mt-5 inline-flex items-center gap-2 bg-[#E5FF55] px-2.5 py-1.5 text-[8px] font-black uppercase tracking-[0.15em]">
-                                                <Check className="h-3 w-3" />
-                                                Backing
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="absolute bottom-7 left-7 right-7 border-t border-[#123B35]/10 pt-5">
-                                        <p className="max-w-[330px] text-xl font-bold leading-tight tracking-[-0.035em]">
-                                            &ldquo;I&apos;m backing this candidate because their
-                                            ideas speak to the future I want.&rdquo;
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Accent */}
-                                <div className="absolute bottom-[11%] left-[9%] flex -rotate-3 items-center gap-2 bg-[#E5FF55] px-4 py-2.5 shadow-lg">
-                                    <span className="h-2 w-2 rounded-full bg-[#123B35]" />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.18em]">
-                                        Your voice matters
-                                    </span>
-                                </div>
-
-                                <div className="absolute bottom-[9%] right-[9%] flex h-12 w-12 items-center justify-center rounded-full border border-white/20 text-white">
-                                    <ArrowUpRight className="h-5 w-5" />
-                                </div>
-
-                                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#E5FF55]" />
-                            </div>
-
-                            {/* Floating detail */}
-                            <div className="absolute -right-5 bottom-10 translate-x-full rounded-[18px] border border-[#123B35]/10 bg-white px-4 py-4 shadow-xl">
-                                <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-[#123B35]/40">
-                                    Your words
-                                </p>
-
-                                <p className="mt-1 text-sm font-bold tracking-[-0.02em]">
-                                    Your reason.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* CTA */}
-                        <div className="absolute bottom-[8%] left-0 z-20 max-w-[280px]">
-                            <p className="mb-4 text-xs leading-5 text-[#123B35]/55">
-                                Choose your position, make your endorsement, and share your
-                                reason with others.
-                            </p>
-
-                            <Link
-                                to="/signup"
-                                className="group inline-flex items-center gap-4 rounded-full bg-[#123B35] py-2 pl-5 pr-2 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                            >
-                                Make your choice
-
-                                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E5FF55] text-[#123B35] transition-transform duration-300 group-hover:rotate-45">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                </span>
-                            </Link>
-                        </div>
-
-                        {/* Position list */}
-                        <div className="absolute bottom-[8%] right-0 max-w-[190px] text-right">
-                            <div className="mb-3 ml-auto h-px w-12 bg-[#123B35]/20" />
-
-                            <p className="text-[10px] font-semibold uppercase leading-4 tracking-[0.14em] text-[#123B35]/45">
-                                President
-                                <br />
-                                Governor
-                                <br />
-                                Senate
-                            </p>
-                        </div>
                     </div>
 
-                    {/* =========================
-              MOBILE COMPOSITION
-          ========================== */}
-                    <div className="mt-10 lg:hidden">
-                        {/* Headline */}
-                        <div className="relative z-10">
-                            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#123B35]/45">
-                                The choice is yours
-                            </p>
-
-                            <h1 className="max-w-[700px] text-[clamp(4rem,18vw,7rem)] font-black leading-[0.76] tracking-[-0.085em]">
-                                WHO
-                                <br />
-                                ARE YOU
-                                <br />
-                                <span className="text-[#D96D45]">BACKING?</span>
-                            </h1>
-
-                            <p className="mt-7 max-w-[360px] text-sm leading-6 text-[#123B35]/60">
-                                Tell Nigeria who you support and why. Your endorsement, your
-                                words, your choice.
-                            </p>
-                        </div>
-
-                        {/* Mobile position indicators */}
-                        <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
-                            {positions.map((position) => (
-                                <div
-                                    key={position.number}
-                                    className="flex shrink-0 items-center gap-2 rounded-full border border-[#123B35]/10 bg-white/60 px-2 py-1.5"
-                                >
-                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#123B35] text-[8px] font-bold text-white">
-                                        {position.number}
-                                    </span>
-
-                                    <span className="pr-2 text-[9px] font-bold uppercase tracking-[0.13em]">
-                                        {position.label}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Central visual */}
-                        <div className="relative mt-8">
-                            <div className="relative overflow-hidden bg-[#123B35] shadow-[0_25px_60px_rgba(18,59,53,0.16)]">
-                                {/* Header inside card */}
-                                <div className="flex items-center justify-between px-5 py-5">
-                                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/45">
-                                        WHO.NG / 01
-                                    </span>
-
-                                    <span className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.15em] text-white/55">
-                                        Make it count
-                                        <span className="h-1.5 w-1.5 rounded-full bg-[#E5FF55]" />
-                                    </span>
-                                </div>
-
-                                {/* Inner endorsement */}
-                                <div className="mx-4 mb-12 bg-[#E8E3D8] p-5 sm:mx-7 sm:p-7">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#123B35]/45">
-                                                My endorsement
-                                            </p>
-
-                                            <p className="mt-2 text-[10px] text-[#123B35]/45">
-                                                Who I&apos;m backing
-                                            </p>
-                                        </div>
-
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#123B35] text-[10px] font-black text-white">
-                                            W
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-9 flex items-center gap-4 sm:mt-12">
-                                        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#D96D45] sm:h-24 sm:w-24">
-                                            <div className="absolute -bottom-6 h-16 w-16 rounded-full bg-[#123B35]" />
-                                            <div className="absolute top-4 h-9 w-9 rounded-full bg-[#F4F0E8]" />
-                                        </div>
-
-                                        <div>
-                                            <div className="h-2.5 w-24 rounded-full bg-[#123B35] sm:w-32" />
-                                            <div className="mt-3 h-2 w-16 rounded-full bg-[#123B35]/20" />
-
-                                            <div className="mt-4 inline-flex items-center gap-1.5 bg-[#E5FF55] px-2 py-1 text-[7px] font-black uppercase tracking-[0.15em]">
-                                                <Check className="h-2.5 w-2.5" />
-                                                Backing
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-8 border-t border-[#123B35]/10 pt-5 sm:mt-10">
-                                        <p className="max-w-[420px] text-lg font-bold leading-tight tracking-[-0.035em] sm:text-xl">
-                                            &ldquo;I&apos;m backing this candidate because their
-                                            ideas speak to the future I want.&rdquo;
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Accent label */}
-                                <div className="absolute bottom-5 left-5 flex -rotate-2 items-center gap-2 bg-[#E5FF55] px-3 py-2 shadow-lg">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-[#123B35]" />
-
-                                    <span className="text-[7px] font-black uppercase tracking-[0.16em]">
-                                        Your voice matters
-                                    </span>
-                                </div>
-
-                                <div className="absolute bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                </div>
-
-                                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#E5FF55]" />
-                            </div>
-
-                            {/* Mobile floating note */}
-                            <div className="absolute -bottom-5 right-4 rounded-[16px] border border-[#123B35]/10 bg-white px-4 py-3 shadow-xl sm:right-8">
-                                <p className="text-[7px] font-bold uppercase tracking-[0.18em] text-[#123B35]/40">
-                                    Your words
-                                </p>
-
-                                <p className="mt-1 text-xs font-bold">
-                                    Your reason.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Mobile CTA */}
-                        <div className="mt-14">
-                            <p className="mb-4 max-w-[340px] text-xs leading-5 text-[#123B35]/55">
-                                Choose your position, make your endorsement, and share your
-                                reason with others.
-                            </p>
-
-                            <Link
-                                to="/signup"
-                                className="group inline-flex w-full items-center justify-between rounded-full bg-[#123B35] py-2 pl-5 pr-2 text-sm font-bold text-white shadow-lg sm:w-auto"
-                            >
-                                Make your choice
-
-                                <span className="ml-6 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E5FF55] text-[#123B35]">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                </span>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="relative z-20 mt-14 flex flex-col gap-5 border-t border-[#123B35]/10 pt-5 lg:mt-8 lg:flex-row lg:items-end lg:justify-between">
-                        <Disclaimer />
-
-                        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#123B35]/40">
-                            <span>Independent</span>
-
-                            <span className="h-1 w-1 rounded-full bg-[#D96D45]" />
-
-                            <span>Non-partisan</span>
-
-                            <ChevronRight className="h-3.5 w-3.5" />
-                        </div>
+                    <div className="mt-6 text-center text-xs leading-5 text-muted-foreground">
+                        Independent. Public. Not an official voting platform.
                     </div>
                 </div>
             </section>
 
-            <HowItWorks />
-            <WhyUs />
-            <Footer />
+            <Disclaimer />
+
+            <HowItWorks onHaveYourSay={openPickDialog} />
+
+            <WhyUs onHaveYourSay={openPickDialog} />
+
+            <Footer onHaveYourSay={openPickDialog} />
+
+            <PickEntryDialog
+                open={pickDialogOpen}
+                onOpenChange={setPickDialogOpen}
+            />
         </main>
     );
 }

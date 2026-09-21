@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 const navigation = [
     { label: "How it works", href: "#how-it-works" },
     { label: "Why Who.ng", href: "#why-who" },
+    { label: "Live", href: "/dashboard/live" },
 ];
-
-export default function Header() {
+interface HeaderProps {
+    onHaveYourSay: () => void;
+}
+export default function Header({ onHaveYourSay }: HeaderProps) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
@@ -45,13 +49,13 @@ export default function Header() {
                         </a>
                     ))}
 
-                    <Link
-                        to="/login"
+                    <Button
+                        onClick={onHaveYourSay}
                         className="ml-1 flex items-center gap-2 rounded-full bg-[#123B35] px-4 py-2.5 text-[13px] font-semibold text-white transition-transform hover:-translate-y-0.5"
                     >
-                        Log in
+                        Pick your choice
                         <ArrowUpRight className="h-3.5 w-3.5" />
-                    </Link>
+                    </Button>
                 </nav>
 
                 {/* Mobile menu button */}

@@ -1,18 +1,37 @@
 import { createBrowserRouter } from "react-router-dom";
+
+import App from "@/App";
 import Onboarding from "@/pages";
-import { routes } from "./routes";
 import Signup from "@/pages/auth/sign-up";
 import Login from "@/pages/auth/login";
 import RecoveryCode from "@/pages/auth/recovery";
-import PositionSelection from "@/pages/endorsement/position-selection";
-import CandidateSelection from "@/pages/endorsement/candidate-selection";
-import EndorsementReasons from "@/pages/endorsement/reason";
-import App from "@/App";
+
+// import PositionSelection from "@/pages/endorsement/position-selection";
+// import CandidateSelection from "@/pages/endorsement/candidate-selection";
+// import EndorsementReasons from "@/pages/endorsement/reason";
+// import ConfirmEndorsement from "@/pages/endorsement/confirm";
+// import Success from "@/pages/endorsement/success";
 import AuthLayout from "@/pages/auth/layout";
-import EndorsementLayout from "@/pages/endorsement/layout";
-import ConfirmEndorsement from "@/pages/endorsement/confirm";
-import Success from "@/pages/endorsement/success";
+// import EndorsementLayout from "@/pages/endorsement/layout";
+
+import Pick from "@/pages/pick";
+import PickLocation from "@/pages/pick/location";
+import Candidate from "@/pages/pick/candidate";
+import PickSuccess from "@/pages/pick/success";
+
+import { routes } from "./routes";
+import PickLayout from "@/pages/pick/layout";
+import Memes from "@/pages/memes";
+import DangoteMemes from "@/pages/memes/dangote";
 import Dashboard from "@/pages/dashboard";
+import { DashboardLayout } from "@/components/dashboard/layout";
+import Live from "@/pages/dashboard/live";
+import DashboardElections from "@/pages/dashboard/election";
+import DashboardTemplates from "@/pages/dashboard/templates";
+import DashboardPick from "@/pages/dashboard/pick";
+import DashboardCandidate from "@/pages/dashboard/candidate";
+import Analytics from "@/pages/dashboard/analytics";
+import DashboardSettings from "@/pages/dashboard/settings";
 
 export const router = createBrowserRouter([
     {
@@ -20,56 +39,128 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: routes.home,
-                Component: Onboarding
+                Component: Onboarding,
             },
+
             {
                 Component: AuthLayout,
                 children: [
                     {
                         path: routes.signup,
-                        Component: Signup
+                        Component: Signup,
                     },
                     {
                         path: routes.login,
-                        Component: Login
+                        Component: Login,
                     },
                     {
                         path: routes.recovery,
-                        Component: RecoveryCode
+                        Component: RecoveryCode,
                     },
-                ]
+                ],
             },
+
+            // {
+            //     Component: EndorsementLayout,
+            //     children: [
+            //         {
+            //             path: routes.endorsement,
+            //             Component: PositionSelection,
+            //         },
+            //         {
+            //             path: routes.candidate,
+            //             Component: CandidateSelection,
+            //         },
+            //         {
+            //             path: routes.reason,
+            //             Component: EndorsementReasons,
+            //         },
+            //         {
+            //             path: routes.confirm,
+            //             Component: ConfirmEndorsement,
+            //         },
+            //     ],
+            // },
+
+            // {
+            //     path: routes.endorsementSuccess,
+            //     Component: Success,
+            // },
+
+            // Who.ng pick flow
             {
-                Component: EndorsementLayout,
+                Component: PickLayout,
                 children: [
                     {
-                        path: routes.endorsement,
-                        Component: PositionSelection
+                        path: routes.pick,
+                        Component: Pick,
                     },
                     {
-                        path: routes.candidate,
-                        Component: CandidateSelection
+                        path: routes.pickLocation,
+                        Component: PickLocation,
                     },
                     {
-                        path: routes.reason,
-                        Component: EndorsementReasons
+                        path: routes.pickCandidate,
+                        Component: Candidate,
                     },
                     {
-                        path: routes.confirm,
-                        Component: ConfirmEndorsement
+                        path: routes.pickSuccess,
+                        Component: PickSuccess,
                     },
+                ],
+            },
 
-                ]
+            {
+                path: routes.memes,
+                Component: Memes,
             },
             {
-                path: routes.endorsementSuccess,
-                Component: Success
+                path: routes.dangoteMemes,
+                Component: DangoteMemes,
+            },
+
+            {
+                path: routes.dangoteMemeTemplate,
+                Component: DangoteMemes,
             },
             {
                 path: routes.dashboard,
-                Component: Dashboard
+                Component: DashboardLayout,
+                children: [
+                    {
+                        index: true,
+                        Component: Dashboard,
+                    },
+                    {
+                        path: "picks",
+                        Component: DashboardPick,
+                    },
+                    {
+                        path: "live",
+                        Component: Live,
+                    },
+                    {
+                        path: "candidates",
+                        Component: DashboardCandidate,
+                    },
+                    {
+                        path: "elections",
+                        Component: DashboardElections,
+                    },
+                    {
+                        path: "templates",
+                        Component: DashboardTemplates,
+                    },
+                    {
+                        path: "analytics",
+                        Component: Analytics,
+                    },
+                    {
+                        path: "settings",
+                        Component: DashboardSettings,
+                    },
+                ],
             },
-        ]
+        ],
     },
-
-])
+]);
