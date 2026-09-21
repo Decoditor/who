@@ -10,7 +10,6 @@ interface FingerprintSelectorProps {
 export default function FingerprintSelector({
     selected,
     onSelect,
-    onInvalid,
 }: FingerprintSelectorProps) {
     const [isPressing, setIsPressing] = useState(false);
 

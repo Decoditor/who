@@ -20,7 +20,6 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar";
 import { routes } from "@/routes/routes";

@@ -1,4 +1,3 @@
-import type { Candidate } from "@/types/candidate";
 import { buildCandidateResults } from "@/lib/voting";
 import { demoPickResults } from "./votings";
 export interface DashboardMetric {

@@ -72,9 +72,9 @@ export default function DashboardElections() {
         (election) => election.status === "upcoming",
     ).length;
 
-    const completedCount = elections.filter(
-        (election) => election.status === "completed",
-    ).length;
+    // const completedCount = elections.filter(
+    //     (election) => election.status === "completed",
+    // ).length;
 
     const totalCandidates = elections.reduce(
         (total, election) => total + election.candidateCount,
