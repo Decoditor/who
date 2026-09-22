@@ -1,8 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     BarChart3,
     FileImage,
     LayoutDashboard,
+    LogOut,
     Radio,
     Settings,
     Trophy,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 import { routes } from "@/routes/routes";
 import { getUserRole } from "@/lib/roles";
+import { getCurrentUser, logoutUser } from "@/lib/auth";
 
 interface DashboardNavItem {
     title: string;
@@ -80,13 +82,20 @@ export const dashboardNavigation: DashboardNavItem[] = [
     },
 ];
 
-const CURRENT_USER_EMAIL = "absamaard@gmail.com";
 
 export function DashboardSidebar() {
     const { isMobile, setOpenMobile } = useSidebar();
     const location = useLocation();
-    const role = getUserRole(CURRENT_USER_EMAIL);
+    const user = getCurrentUser();
+    const role = getUserRole(user?.email);
     const isAdmin = role === "admin";
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logoutUser();
+        navigate(routes.login, { replace: true });
+    };
 
     const visibleItems = dashboardNavigation.filter(
         (item) => !item.adminOnly || isAdmin,
@@ -203,23 +212,48 @@ export function DashboardSidebar() {
             </SidebarContent>
 
             <SidebarFooter className="border-t border-primary-foreground/15 bg-primary p-3">
-                <div className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-primary-foreground/10">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
-                        <span className="text-sm font-semibold text-primary-foreground">
-                            AS
-                        </span>
-                    </div>
+                <SidebarMenu>
+                    <SidebarMenuButton
+                        type="button"
+                        tooltip="Log out"
+                        onClick={handleLogout}
+                        className="
+                h-auto min-h-12 rounded-lg px-2 group
+                text-primary-foreground
+                hover:bg-primary-foreground/20
+                hover:text-red-300
+                data-[state=open]:bg-destructive
+                data-[state=open]:text-destructive-foreground
+            "
+                    >
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
+                                <span className="text-sm font-semibold text-primary-foreground">
+                                    {user?.name
+                                        ?.split(" ")
+                                        .map((part) => part[0])
+                                        .join("")
+                                        .slice(0, 2)
+                                        .toUpperCase() || "U"}
+                                </span>
+                            </div>
 
-                    <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-                        <p className="truncate text-sm font-medium text-primary-foreground">
-                            AbdulSamad
-                        </p>
+                            <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+                                <p className="truncate text-sm font-medium">
+                                    {user?.name || "User"}
+                                </p>
 
-                        <p className="truncate text-xs text-primary-foreground/55">
-                            Administrator
-                        </p>
-                    </div>
-                </div>
+                                <p className="truncate text-xs opacity-60">
+                                    {role === "admin"
+                                        ? "Administrator"
+                                        : "User"}
+                                </p>
+                            </div>
+
+                            <LogOut className="size-4 shrink-0 opacity-70 group-data-[collapsible=icon]:hidden" />
+                        </div>
+                    </SidebarMenuButton>
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     );

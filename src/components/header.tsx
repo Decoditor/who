@@ -15,7 +15,7 @@ export default function Header({ onHaveYourSay }: HeaderProps) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
-        <header className="absolute left-0 right-0 top-0 z-50 px-4 pt-5 sm:px-6 lg:px-8">
+        <header className="fixed left-0 right-0 top-0 z-50 px-4 pt-5 sm:px-6 lg:px-8">
             <div className="mx-auto flex max-w-360 items-center justify-between">
                 {/* Brand */}
                 <Link

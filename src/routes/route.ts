@@ -32,6 +32,8 @@ import DashboardPick from "@/pages/dashboard/pick";
 import DashboardCandidate from "@/pages/dashboard/candidate";
 import Analytics from "@/pages/dashboard/analytics";
 import DashboardSettings from "@/pages/dashboard/settings";
+import { RequireAuth } from "@/components/auth/required";
+import { RequireGuest } from "@/components/auth/guest";
 
 export const router = createBrowserRouter([
     {
@@ -43,19 +45,15 @@ export const router = createBrowserRouter([
             },
 
             {
-                Component: AuthLayout,
+                Component: RequireGuest,
                 children: [
                     {
-                        path: routes.signup,
-                        Component: Signup,
-                    },
-                    {
-                        path: routes.login,
-                        Component: Login,
-                    },
-                    {
-                        path: routes.recovery,
-                        Component: RecoveryCode,
+                        Component: AuthLayout,
+                        children: [
+                            { path: routes.signup, Component: Signup },
+                            { path: routes.login, Component: Login },
+                            { path: routes.recovery, Component: RecoveryCode },
+                        ],
                     },
                 ],
             },
@@ -124,41 +122,47 @@ export const router = createBrowserRouter([
                 Component: DangoteMemes,
             },
             {
-                path: routes.dashboard,
-                Component: DashboardLayout,
+                Component: RequireAuth,
                 children: [
                     {
-                        index: true,
-                        Component: Dashboard,
+                        path: routes.dashboard,
+                        Component: DashboardLayout,
+                        children: [
+                            {
+                                index: true,
+                                Component: Dashboard,
+                            },
+                            {
+                                path: "picks",
+                                Component: DashboardPick,
+                            },
+                            {
+                                path: "live",
+                                Component: Live,
+                            },
+                            {
+                                path: "candidates",
+                                Component: DashboardCandidate,
+                            },
+                            {
+                                path: "elections",
+                                Component: DashboardElections,
+                            },
+                            {
+                                path: "templates",
+                                Component: DashboardTemplates,
+                            },
+                            {
+                                path: "analytics",
+                                Component: Analytics,
+                            },
+                            {
+                                path: "settings",
+                                Component: DashboardSettings,
+                            },
+                        ]
                     },
-                    {
-                        path: "picks",
-                        Component: DashboardPick,
-                    },
-                    {
-                        path: "live",
-                        Component: Live,
-                    },
-                    {
-                        path: "candidates",
-                        Component: DashboardCandidate,
-                    },
-                    {
-                        path: "elections",
-                        Component: DashboardElections,
-                    },
-                    {
-                        path: "templates",
-                        Component: DashboardTemplates,
-                    },
-                    {
-                        path: "analytics",
-                        Component: Analytics,
-                    },
-                    {
-                        path: "settings",
-                        Component: DashboardSettings,
-                    },
+
                 ],
             },
         ],

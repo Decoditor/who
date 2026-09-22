@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -15,27 +16,59 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
+import {
+    Combobox,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxList,
+} from "@/components/ui/combobox";
 
-const signupSchema = z.object({
-    username: z
-        .string()
-        .trim()
-        .min(3, "Username must be at least 3 characters.")
-        .max(30, "Username must not exceed 30 characters.")
-        .regex(
-            /^[a-zA-Z0-9_]+$/,
-            "Username can only contain letters, numbers, and underscores.",
-        ),
+import { createUser } from "@/lib/auth";
 
-    state: z.string().min(1, "Please select your state."),
+const signupSchema = z
+    .object({
+        name: z
+            .string()
+            .trim()
+            .min(2, "Please enter your name."),
 
-    lga: z.string().min(1, "Please select your LGA."),
+        email: z
+            .string()
+            .trim()
+            .email("Please enter a valid email address."),
 
-    isAdult: z
-        .boolean()
-        .refine((value) => value, "You must confirm that you are 18 or older."),
-});
+        password: z
+            .string()
+            .min(8, "Password must be at least 8 characters."),
+
+        confirmPassword: z
+            .string()
+            .min(1, "Please confirm your password."),
+
+        state: z
+            .string()
+            .min(1, "Please select your state."),
+
+        lga: z
+            .string()
+            .min(1, "Please select your LGA."),
+
+        isAdult: z
+            .boolean()
+            .refine(
+                (value) => value,
+                "You must confirm that you are 18 or older.",
+            ),
+    })
+    .refine(
+        (values) => values.password === values.confirmPassword,
+        {
+            message: "Passwords do not match.",
+            path: ["confirmPassword"],
+        },
+    );
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -120,10 +153,17 @@ const lgasByState: Record<string, string[]> = {
 export default function Signup() {
     const navigate = useNavigate();
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] =
+        useState(false);
+
     const form = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
-            username: "",
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
             state: "",
             lga: "",
             isAdult: false,
@@ -132,10 +172,11 @@ export default function Signup() {
 
     const selectedState = form.watch("state");
 
-    const availableLgas = lgasByState[selectedState] ?? [];
+    const availableLgas =
+        lgasByState[selectedState] ?? [];
 
     const handleStateChange = (value: string) => {
-        form.setValue("state", value as string, {
+        form.setValue("state", value, {
             shouldValidate: true,
         });
 
@@ -144,45 +185,219 @@ export default function Signup() {
         });
     };
 
-    const onSubmit = (values: SignupFormValues) => {
-        console.log("Signup data:", values);
+    const onSubmit = async (
+        values: SignupFormValues,
+    ) => {
+        try {
+            createUser({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+            });
 
-        navigate("/recovery-code");
+            await new Promise((resolve) =>
+                setTimeout(resolve, 1200),
+            );
+
+            navigate(
+                `/recovery-code?email=${encodeURIComponent(
+                    values.email,
+                )
+                }`,
+            );
+        } catch (error) {
+            form.setError("root", {
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "Unable to create account.",
+            });
+        }
     };
 
     return (
         <>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Create your account
+                </h1>
+
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Join who.ng to make picks, share your endorsements,
+                    and keep track of your activity.
+                </p>
+            </div>
+
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <FieldGroup>
-                    {/* Username */}
                     <Field>
-                        <FieldLabel htmlFor="username">Username</FieldLabel>
+                        <FieldLabel htmlFor="name">
+                            Name
+                        </FieldLabel>
 
                         <Input
-                            id="username"
-                            placeholder="e.g. samad_01"
-                            autoComplete="username"
-                            {...form.register("username")}
+                            id="name"
+                            placeholder="Enter your name"
+                            autoComplete="name"
+                            {...form.register("name")}
                         />
 
-                        <FieldDescription>
-                            This is the name people will see with your endorsement.
-                        </FieldDescription>
-
-                        <FieldError errors={[form.formState.errors.username]} />
+                        <FieldError
+                            errors={[
+                                form.formState.errors.name,
+                            ]}
+                        />
                     </Field>
 
-                    {/* State */}
+                    <Field>
+                        <FieldLabel htmlFor="email">
+                            Email
+                        </FieldLabel>
+
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            autoComplete="email"
+                            {...form.register("email")}
+                        />
+
+                        <FieldError
+                            errors={[
+                                form.formState.errors.email,
+                            ]}
+                        />
+                    </Field>
+
+                    <Field>
+                        <FieldLabel htmlFor="password">
+                            Password
+                        </FieldLabel>
+
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
+                                placeholder="Create a password"
+                                autoComplete="new-password"
+                                className="pr-10"
+                                {...form.register("password")}
+                            />
+
+                            <button
+                                type="button"
+                                aria-label={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                                onClick={() =>
+                                    setShowPassword(
+                                        (value) => !value,
+                                    )
+                                }
+                                className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="size-4" />
+                                ) : (
+                                    <Eye className="size-4" />
+                                )}
+                            </button>
+                        </div>
+
+                        <FieldDescription>
+                            Password must be at least 8
+                            characters.
+                        </FieldDescription>
+
+                        <FieldError
+                            errors={[
+                                form.formState.errors.password,
+                            ]}
+                        />
+                    </Field>
+
+                    <Field>
+                        <FieldLabel htmlFor="confirmPassword">
+                            Confirm password
+                        </FieldLabel>
+
+                        <div className="relative">
+                            <Input
+                                id="confirmPassword"
+                                type={
+                                    showConfirmPassword
+                                        ? "text"
+                                        : "password"
+                                }
+                                placeholder="Enter your password again"
+                                autoComplete="new-password"
+                                className="pr-10"
+                                {...form.register(
+                                    "confirmPassword",
+                                )}
+                            />
+
+                            <button
+                                type="button"
+                                aria-label={
+                                    showConfirmPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                                onClick={() =>
+                                    setShowConfirmPassword(
+                                        (value) => !value,
+                                    )
+                                }
+                                className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                {showConfirmPassword ? (
+                                    <EyeOff className="size-4" />
+                                ) : (
+                                    <Eye className="size-4" />
+                                )}
+                            </button>
+                        </div>
+
+                        <FieldError
+                            errors={[
+                                form.formState.errors
+                                    .confirmPassword,
+                            ]}
+                        />
+                    </Field>
+
                     <Field>
                         <FieldLabel>State</FieldLabel>
 
-                        <Combobox items={states} value={form.watch("state")} onValueChange={(value) => handleStateChange(value ?? "")}>
+                        <Combobox
+                            items={states}
+                            value={selectedState}
+                            onValueChange={(value) =>
+                                handleStateChange(
+                                    value ?? "",
+                                )
+                            }
+                        >
                             <ComboboxInput placeholder="Select your state" />
+
                             <ComboboxContent>
-                                <ComboboxEmpty>No state found.</ComboboxEmpty>
+                                <ComboboxEmpty>
+                                    No state found.
+                                </ComboboxEmpty>
+
                                 <ComboboxList>
                                     {(state) => (
-                                        <ComboboxItem key={state} value={state}>
+                                        <ComboboxItem
+                                            key={state}
+                                            value={state}
+                                        >
                                             {state}
                                         </ComboboxItem>
                                     )}
@@ -190,10 +405,13 @@ export default function Signup() {
                             </ComboboxContent>
                         </Combobox>
 
-                        <FieldError errors={[form.formState.errors.state]} />
+                        <FieldError
+                            errors={[
+                                form.formState.errors.state,
+                            ]}
+                        />
                     </Field>
 
-                    {/* LGA */}
                     <Field>
                         <FieldLabel>LGA</FieldLabel>
 
@@ -201,22 +419,39 @@ export default function Signup() {
                             items={availableLgas}
                             value={form.watch("lga")}
                             onValueChange={(value) =>
-                                form.setValue("lga", value ?? "", {
-                                    shouldValidate: true,
-                                })}>
+                                form.setValue(
+                                    "lga",
+                                    value ?? "",
+                                    {
+                                        shouldValidate:
+                                            true,
+                                    },
+                                )
+                            }
+                        >
                             <ComboboxInput
-                                disabled={!selectedState || availableLgas.length === 0}
+                                disabled={
+                                    !selectedState ||
+                                    availableLgas.length === 0
+                                }
                                 placeholder={
-                                    selectedState ? "Select your LGA" : "Select your state first"
+                                    selectedState
+                                        ? "Select your LGA"
+                                        : "Select your state first"
                                 }
                             />
 
                             <ComboboxContent>
-                                <ComboboxEmpty>No LGA found.</ComboboxEmpty>
+                                <ComboboxEmpty>
+                                    No LGA found.
+                                </ComboboxEmpty>
 
                                 <ComboboxList>
                                     {(lga) => (
-                                        <ComboboxItem key={lga} value={lga}>
+                                        <ComboboxItem
+                                            key={lga}
+                                            value={lga}
+                                        >
                                             {lga}
                                         </ComboboxItem>
                                     )}
@@ -225,22 +460,33 @@ export default function Signup() {
                         </Combobox>
 
                         <FieldDescription>
-                            Your location helps personalize Governor and Senate results.
+                            Your location helps personalize
+                            election results.
                         </FieldDescription>
 
-                        <FieldError errors={[form.formState.errors.lga]} />
+                        <FieldError
+                            errors={[
+                                form.formState.errors.lga,
+                            ]}
+                        />
                     </Field>
 
-                    {/* Age confirmation */}
                     <Field>
                         <div className="flex items-start gap-3">
                             <Checkbox
                                 id="isAdult"
-                                checked={form.watch("isAdult")}
+                                checked={form.watch(
+                                    "isAdult",
+                                )}
                                 onCheckedChange={(checked) =>
-                                    form.setValue("isAdult", checked === true, {
-                                        shouldValidate: true,
-                                    })
+                                    form.setValue(
+                                        "isAdult",
+                                        checked === true,
+                                        {
+                                            shouldValidate:
+                                                true,
+                                        },
+                                    )
                                 }
                             />
 
@@ -249,29 +495,44 @@ export default function Signup() {
                                     htmlFor="isAdult"
                                     className="cursor-pointer font-medium"
                                 >
-                                    I confirm that I am 18 years old or older.
+                                    I confirm that I am 18
+                                    years old or older.
                                 </FieldLabel>
 
                                 <FieldDescription>
-                                    Who.ng is currently available to Nigerians aged 18 and
-                                    above.
+                                    Who.ng is currently
+                                    available to Nigerians
+                                    aged 18 and above.
                                 </FieldDescription>
                             </div>
                         </div>
 
-                        <FieldError errors={[form.formState.errors.isAdult]} />
+                        <FieldError
+                            errors={[
+                                form.formState.errors.isAdult,
+                            ]}
+                        />
                     </Field>
 
-                    {/* Submit */}
+                    <FieldError
+                        errors={[
+                            form.formState.errors.root,
+                        ]}
+                    />
+
                     <Button
                         type="submit"
                         size="lg"
                         className="mt-2 w-full"
                         disabled={form.formState.isSubmitting}
                     >
-                        Continue
+                        {form.formState.isSubmitting
+                            ? "Creating account..."
+                            : "Continue"}
 
-                        <ArrowRight className="h-4 w-4" />
+                        {!form.formState.isSubmitting && (
+                            <ArrowRight className="size-4" />
+                        )}
                     </Button>
                 </FieldGroup>
             </form>

@@ -443,22 +443,17 @@ export default function Candidate() {
                                             <CardContent className="p-0">
                                                 <div className="flex min-h-48">
                                                     <div className="relative w-32 shrink-0 overflow-hidden bg-muted sm:w-36">
-                                                        {candidate.image ? (
-                                                            <img
-                                                                src={
-                                                                    candidate.image
-                                                                }
-                                                                alt={
-                                                                    candidate.name
-                                                                }
-                                                                className="size-full object-cover object-top"
-                                                                loading="lazy"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex size-full items-center justify-center text-xs font-medium text-muted-foreground">
-                                                                No image
-                                                            </div>
-                                                        )}
+
+                                                        <img
+                                                            src={
+                                                                candidate.image ?? "/candidates/default.png"
+                                                            }
+                                                            alt={
+                                                                candidate.name
+                                                            }
+                                                            className="size-full object-cover object-top"
+                                                            loading="lazy"
+                                                        />
 
                                                         {isSelected && (
                                                             <div className="absolute inset-0 bg-primary/10" />

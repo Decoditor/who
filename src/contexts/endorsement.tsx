@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 
 import type { Candidate, Position } from "@/types";
 import { Outlet } from "react-router-dom";
+import { Toaster } from "sonner";
 
 interface EndorsementDraft {
     position: Position | null;
@@ -68,6 +69,7 @@ export function EndorsementProvider() {
             }}
         >
             <Outlet />
+            <Toaster />
         </EndorsementContext.Provider>
     );
 }

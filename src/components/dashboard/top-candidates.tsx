@@ -45,7 +45,7 @@ export function TopCandidates({
                             <img
                                 src={
                                     item.candidate.image ??
-                                    "/candidates/default.jpg"
+                                    "/candidates/default.png"
                                 }
                                 alt={item.candidate.name}
                                 className="size-full object-cover"

@@ -101,7 +101,7 @@ export function EditorialCard({
                                 <img
                                     src={
                                         candidate.image ??
-                                        "/candidates/default.jpg"
+                                        "/candidates/default.png"
                                     }
                                     alt={candidate.name}
                                     className="h-full w-full object-cover object-top"
@@ -109,7 +109,7 @@ export function EditorialCard({
                                     referrerPolicy="no-referrer"
                                     onError={(event) => {
                                         event.currentTarget.src =
-                                            "/candidates/default.jpg";
+                                            "/candidates/default.png";
                                     }}
                                 />
 

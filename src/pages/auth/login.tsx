@@ -1,29 +1,35 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-const loginSchema = z.object({
-    username: z
-        .string()
-        .trim()
-        .min(1, "Please enter your username."),
+import {
+    getUserByEmail,
+    loginUser,
+} from "@/lib/auth";
+import { routes } from "@/routes/routes";
 
-    recoveryCode: z
+const loginSchema = z.object({
+    email: z
         .string()
         .trim()
-        .min(1, "Please enter your recovery code."),
+        .email("Please enter a valid email address."),
+
+    password: z
+        .string()
+        .min(1, "Please enter your password."),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -31,58 +37,145 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
     const navigate = useNavigate();
 
+    const [showPassword, setShowPassword] =
+        useState(false);
+
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            username: "",
-            recoveryCode: "",
+            email: "",
+            password: "",
         },
     });
 
-    const onSubmit = (values: LoginFormValues) => {
-        console.log("Login data:", values);
+    const onSubmit = async (
+        values: LoginFormValues,
+    ) => {
+        const email = values.email
+            .trim()
+            .toLowerCase();
 
-        // Temporary until the backend authentication endpoint is connected.
-        navigate("/dashboard");
+        const user = getUserByEmail(email);
+
+        if (!user) {
+            toast.error("Account not found", {
+                description: "No account exists with this email address.",
+            });
+            return;
+        }
+
+        if (!user.verified) {
+            toast.info("Email verification required", {
+                description: "Verify your email before signing in.",
+            });
+
+            await new Promise((resolve) => setTimeout(resolve, 700));
+
+            navigate(
+                `${routes.recovery}?email=${encodeURIComponent(email)}`,
+            );
+
+            return;
+        }
+
+        try {
+            loginUser(email, values.password);
+
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+
+            navigate(routes.dashboard);
+        } catch (error) {
+            toast.error("Unable to sign in", {
+                description:
+                    error instanceof Error
+                        ? error.message
+                        : "Invalid email or password.",
+            });
+        }
     };
 
     return (
         <>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Welcome back
+                </h1>
+
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Sign in to access your picks, endorsements, and
+                    dashboard.
+                </p>
+            </div>
+
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <FieldGroup>
-                    {/* Username */}
                     <Field>
-                        <FieldLabel htmlFor="username">Username</FieldLabel>
-
-                        <Input
-                            id="username"
-                            placeholder="Enter your username"
-                            autoComplete="username"
-                            {...form.register("username")}
-                        />
-
-                        <FieldError errors={[form.formState.errors.username]} />
-                    </Field>
-
-                    {/* Recovery code */}
-                    <Field>
-                        <FieldLabel htmlFor="recoveryCode">
-                            Recovery code
+                        <FieldLabel htmlFor="email">
+                            Email
                         </FieldLabel>
 
                         <Input
-                            id="recoveryCode"
-                            placeholder="Enter your recovery code"
-                            autoComplete="off"
-                            {...form.register("recoveryCode")}
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            autoComplete="email"
+                            {...form.register("email")}
                         />
 
-                        <FieldDescription>
-                            Use the recovery code you received when you created your
-                            Who.ng account.
-                        </FieldDescription>
+                        <FieldError
+                            errors={[
+                                form.formState.errors.email,
+                            ]}
+                        />
+                    </Field>
 
-                        <FieldError errors={[form.formState.errors.recoveryCode]} />
+                    <Field>
+                        <FieldLabel htmlFor="password">
+                            Password
+                        </FieldLabel>
+
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={
+                                    showPassword
+                                        ? "text"
+                                        : "password"
+                                }
+                                placeholder="Enter your password"
+                                autoComplete="current-password"
+                                className="pr-10"
+                                {...form.register("password")}
+                            />
+
+                            <button
+                                type="button"
+                                aria-label={
+                                    showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                }
+                                onClick={() =>
+                                    setShowPassword(
+                                        (value) => !value,
+                                    )
+                                }
+                                className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="size-4" />
+                                ) : (
+                                    <Eye className="size-4" />
+                                )}
+                            </button>
+                        </div>
+
+                        <FieldError
+                            errors={[
+                                form.formState.errors
+                                    .password,
+                            ]}
+                        />
                     </Field>
 
                     <Button
@@ -91,8 +184,13 @@ export default function Login() {
                         className="mt-2 w-full"
                         disabled={form.formState.isSubmitting}
                     >
-                        Log in
-                        <ArrowRight className="h-4 w-4" />
+                        {form.formState.isSubmitting
+                            ? "Signing in..."
+                            : "Log in"}
+
+                        {!form.formState.isSubmitting && (
+                            <ArrowRight className="size-4" />
+                        )}
                     </Button>
                 </FieldGroup>
             </form>

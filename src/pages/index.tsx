@@ -237,7 +237,7 @@ export default function Onboarding() {
     };
 
     return (
-        <main className="min-h-screen overflow-hidden bg-background text-foreground">
+        <main className="min-h-screen relative overflow-hidden bg-background text-foreground">
             <Header onHaveYourSay={openPickDialog} />
 
             <section

@@ -55,7 +55,7 @@ export function IdentityCard({
                         <img
                             src={
                                 candidate.image ??
-                                "/candidates/default.jpg"
+                                "/candidates/default.png"
                             }
                             alt=""
                             className="h-full w-full object-cover object-top"
@@ -63,7 +63,7 @@ export function IdentityCard({
                             referrerPolicy="no-referrer"
                             onError={(event) => {
                                 event.currentTarget.src =
-                                    "/candidates/default.jpg";
+                                    "/candidates/default.png";
                             }}
                         />
 

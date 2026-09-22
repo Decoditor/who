@@ -46,7 +46,7 @@ function PodiumCandidate({
                     <img
                         src={
                             result.candidate.image ??
-                            "/candidates/default.jpg"
+                            "/candidates/default.png"
                         }
                         alt={result.candidate.name}
                         className="size-full object-cover"

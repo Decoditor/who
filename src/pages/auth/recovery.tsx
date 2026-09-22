@@ -1,140 +1,169 @@
-import { ArrowRight, Copy, ShieldCheck } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Field,
-    FieldDescription,
-    FieldError,
-    FieldLabel,
-} from "@/components/ui/field";
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
+
+import {
+    getUserByEmail,
+    verifyUser,
+} from "@/lib/auth";
+import { routes } from "@/routes/routes";
+
+const DEMO_OTP = "123456";
 
 export default function RecoveryCode() {
     const navigate = useNavigate();
-    const [copied, setCopied] = useState(false);
-    const [saved, setSaved] = useState(false);
+    const [searchParams] = useSearchParams();
 
-    // Temporary code until the backend provides the real recovery code.
-    const recoveryCode = "WNG-7K4P-92XM";
+    const email =
+        searchParams.get("email") ?? "";
 
-    const handleCopy = async () => {
-        await navigator.clipboard.writeText(recoveryCode);
-        setCopied(true);
+    const [otp, setOtp] = useState("");
+    const [isSubmitting, setIsSubmitting] =
+        useState(false);
 
-        setTimeout(() => {
-            setCopied(false);
-        }, 2000);
-    };
+    const handleSubmit = async (
+        event: React.FormEvent,
+    ) => {
+        event.preventDefault();
 
-    const handleContinue = () => {
-        if (!saved) return;
+        if (otp.length !== 6) {
+            toast.error("Enter the complete OTP", {
+                description:
+                    "Please enter the 6-digit code sent to your email.",
+            });
 
-        navigate("/endorsement");
+            return;
+        }
+
+        if (otp !== DEMO_OTP) {
+            toast.error("Invalid OTP", {
+                description:
+                    "The verification code is incorrect.",
+            });
+
+            return;
+        }
+
+        const user = getUserByEmail(email);
+
+        if (!user) {
+            toast.error("Account not found", {
+                description:
+                    "We could not find an account for this email.",
+            });
+
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        verifyUser(email);
+
+        await new Promise((resolve) =>
+            setTimeout(resolve, 1200),
+        );
+
+        toast.success("Email verified", {
+            description:
+                "Your account has been verified. You can now sign in.",
+        });
+
+        navigate(routes.dashboard);
     };
 
     return (
-        <>
-            <div className="space-y-8">
-                {/* Important notice */}
-                <div className="flex gap-4 border border-border bg-muted p-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        <ShieldCheck className="h-5 w-5" />
-                    </div>
-
-                    <div>
-                        <p className="text-sm font-bold">
-                            Keep this code somewhere safe.
-                        </p>
-
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                            Anyone with this code may be able to access your Who.ng account.
-                            Don't share it publicly.
-                        </p>
-                    </div>
+        <div>
+            <div className="mb-8">
+                <div className="mb-5 flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Mail className="size-5" />
                 </div>
 
-                {/* Recovery code */}
-                <div>
-                    <FieldLabel htmlFor="recovery-code">Your recovery code</FieldLabel>
+                <h1 className="text-3xl font-semibold tracking-tight">
+                    Verify your email
+                </h1>
 
-                    <div className="mt-2 flex items-center gap-2">
-                        <div
-                            id="recovery-code"
-                            className="flex min-h-12 flex-1 items-center border border-border bg-background px-4 font-mono text-sm font-bold tracking-widest"
-                        >
-                            {recoveryCode}
-                        </div>
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={handleCopy}
-                            aria-label="Copy recovery code"
-                        >
-                            <Copy className="h-4 w-4" />
-                        </Button>
-                    </div>
-
-                    <FieldDescription className="mt-2">
-                        {copied ? "Recovery code copied." : "Write it down or save it securely."}
-                    </FieldDescription>
-                </div>
-
-                {/* Confirmation */}
-                <Field>
-                    <div className="flex items-start gap-3">
-                        <Checkbox
-                            id="saved-code"
-                            checked={saved}
-                            onCheckedChange={(checked) => setSaved(checked === true)}
-                        />
-
-                        <div className="grid gap-1">
-                            <FieldLabel
-                                htmlFor="saved-code"
-                                className="cursor-pointer font-medium"
-                            >
-                                I have saved my recovery code.
-                            </FieldLabel>
-
-                            <FieldDescription>
-                                I understand that I may not be able to log in on another
-                                device without it.
-                            </FieldDescription>
-                        </div>
-                    </div>
-
-                    {!saved && (
-                        <FieldError>
-                            Please confirm that you've saved your recovery code.
-                        </FieldError>
-                    )}
-                </Field>
-
-                <Button
-                    type="button"
-                    size="lg"
-                    className="w-full"
-                    disabled={!saved}
-                    onClick={handleContinue}
-                >
-                    Continue
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
-
-                <p className="text-center text-xs leading-relaxed text-muted-foreground">
-                    Already have an account?{" "}
-                    <Link
-                        to="/login"
-                        className="font-bold text-foreground underline underline-offset-4 transition-colors hover:text-coral"
-                    >
-                        Log in
-                    </Link>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    Enter the 6-digit verification code sent
+                    to{" "}
+                    <span className="font-medium text-foreground">
+                        {email || "your email"}
+                    </span>
+                    .
                 </p>
             </div>
-        </>
+
+            <form onSubmit={handleSubmit}>
+                <div className="space-y-7">
+                    <InputOTP
+                        maxLength={6}
+                        value={otp}
+                        onChange={setOtp}
+                        disabled={isSubmitting}
+                        containerClassName="w-full justify-center"
+                        className="w-full"
+                    >
+                        <InputOTPGroup className="w-full justify-center">
+                            <InputOTPSlot
+                                index={0}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                            <InputOTPSlot
+                                index={1}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                            <InputOTPSlot
+                                index={2}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                            <InputOTPSlot
+                                index={3}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                            <InputOTPSlot
+                                index={4}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                            <InputOTPSlot
+                                index={5}
+                                className="size-12 text-lg font-semibold sm:size-14 sm:text-xl"
+                            />
+                        </InputOTPGroup>
+                    </InputOTP>
+
+                    <p className="text-center text-xs text-muted-foreground">
+                        Development OTP:{" "}
+                        <span className="font-bold text-foreground">
+                            {DEMO_OTP}
+                        </span>
+                    </p>
+
+                    <Button
+                        type="submit"
+                        size="lg"
+                        className="w-full"
+                        disabled={
+                            isSubmitting ||
+                            otp.length !== 6
+                        }
+                    >
+                        {isSubmitting
+                            ? "Verifying..."
+                            : "Verify email"}
+
+                        {!isSubmitting && (
+                            <ArrowRight className="size-4" />
+                        )}
+                    </Button>
+                </div>
+            </form>
+        </div>
     );
 }
